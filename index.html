@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="IXncnxEnk7GFFRxnjRIJM4">
+<head data-page-node-id="65wHK5chpS1VANCAqr6CTm">
+<meta charset="UTF-8" data-page-node-id="AG5EDZnoYQq2cumCmM2e6X">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" data-page-node-id="pd7FnY8sbruldSOlr6MzDQ">
+<title>🌻 植物大战僵尸 · Vibecoding 作业</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: linear-gradient(160deg, #16291c 0%, #24422f 45%, #356646 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #f2f7ee;
+    padding: 16px;
+    user-select: none;
+  }
+  h1 {
+    font-size: 27px;
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+    color: #ffe27a;
+    text-shadow: 0 2px 0 #8a5a00, 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .subtitle { font-size: 13px; color: #b7dcbf; margin-bottom: 12px; letter-spacing: 1px; }
+  .topbar {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .sun-counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(180deg, rgba(40,30,10,0.75), rgba(20,15,5,0.75));
+    border: 2px solid #c9a83c;
+    border-radius: 12px;
+    padding: 5px 14px;
+    font-size: 21px;
+    font-weight: 700;
+    color: #ffe27a;
+    font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+  }
+  .sun-counter .dot {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff7c0, #ffce3d 55%, #e89a00);
+    box-shadow: 0 0 12px #ffd54a, inset -2px -3px 4px rgba(160,90,0,0.4);
+  }
+  .seed {
+    position: relative;
+    width: 62px;
+    border: 2px solid rgba(255,255,255,0.22);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(58,44,26,0.9), rgba(30,24,14,0.9));
+    padding: 5px 2px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 3px 8px rgba(0,0,0,0.35);
+  }
+  .seed:hover { transform: translateY(-2px); }
+  .seed.selected { border-color: #ffe27a; box-shadow: 0 0 0 2px rgba(255,226,122,0.45), 0 4px 10px rgba(0,0,0,0.4); }
+  .seed.locked { filter: grayscale(0.85) brightness(0.6); cursor: not-allowed; }
+  .seed .icon { font-size: 25px; line-height: 1.25; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); }
+  .seed .cost { font-size: 12px; color: #ffe27a; font-weight: 600; }
+  .seed .name { font-size: 10px; color: #c8ddcb; }
+  .board-wrap { position: relative; }
+  #board {
+    width: 740px;
+    height: auto;
+    background: #3a7d44;
+    border: 3px solid #1d3f26;
+    border-radius: 12px;
+    box-shadow: 0 18px 44px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.08);
+    max-width: 100%;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    background: radial-gradient(ellipse at center, rgba(14,38,22,0.82), rgba(5,16,9,0.93));
+    border-radius: 12px;
+    text-align: center;
+    padding: 20px;
+  }
+  .overlay h2 { font-size: 27px; color: #ffe27a; text-shadow: 0 2px 0 #8a5a00; }
+  .overlay p { font-size: 13.5px; color: #c8ddcb; line-height: 1.85; }
+  button {
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    color: #12331d;
+    background: linear-gradient(180deg, #b6ec9a, #7cc25a 60%, #5da03f);
+    border: none;
+    border-radius: 11px;
+    padding: 12px 38px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 0 #3f7028, 0 8px 16px rgba(0,0,0,0.4);
+  }
+  button:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #3f7028, 0 10px 20px rgba(0,0,0,0.45); }
+  button:active { transform: translateY(2px); box-shadow: 0 2px 0 #3f7028; }
+  .status { margin-top: 10px; font-size: 13px; color: #c8ddcb; }
+  .status b { color: #ffe27a; }
+  footer { margin-top: 13px; font-size: 12px; color: #6f9a7c; }
+</style>
+</head>
+<body data-page-node-id="0cXu8qItOzLt7mB2EYpoXH">
+  <h1 data-page-node-id="1DECWLTJRjnvqTIjYNcwfy">🌻 植物大战僵尸</h1>
+  <div class="subtitle" data-page-node-id="wFBt4rcrFY0GCwMqOB6Wc9">Vibecoding 部署课 · 课后作业 · 守住你的草坪！</div>
+
+  <div class="topbar" data-page-node-id="jorKw6VbNbvtlThG6a70kG">
+    <div class="sun-counter" data-page-node-id="awzfclDsdH8IuE0GhueqXV"><span class="dot" data-page-node-id="tleTuh1wa9ev3NGz5FQ9hD"></span><span id="sun" data-page-node-id="ZVVmPMzYxgwWi3ZSIE2huw">150</span></div>
+    <div class="seed" data-type="sunflower" data-page-node-id="9C9hZIKsPbyeeRSBPa3spZ">
+      <div class="icon" data-page-node-id="626bCDRBb41JlfD7Hmg8By">🌻</div><div class="cost" data-page-node-id="vBkrKSPKrnSXMxxqbfFHFM">50</div><div class="name" data-page-node-id="7yYGteNjtrTVhiMJCJLdhG">向日葵</div>
+    </div>
+    <div class="seed" data-type="peashooter" data-page-node-id="OBhjGY2LsVygpgwFrl0nTZ">
+      <div class="icon" data-page-node-id="gerBgJD5cmRy8HU1jPZgWA">🌱</div><div class="cost" data-page-node-id="RKUC3BoXOzWsd29ykZD5P4">100</div><div class="name" data-page-node-id="uUCkQVJQrI31C52OadC9lO">豌豆射手</div>
+    </div>
+    <div class="seed" data-type="snowpea" data-page-node-id="zdA9tWvFxAXXrH5JJ2LpWG">
+      <div class="icon" data-page-node-id="3pm48DKEJb4bKGKF00vXZG">❄️</div><div class="cost" data-page-node-id="Hsbpw36HxKVwDpcQ5jKa2t">175</div><div class="name" data-page-node-id="PSip9vNNJrHHxRqLJSGfgK">寒冰射手</div>
+    </div>
+    <div class="seed" data-type="repeater" data-page-node-id="fex1SB5ecmcyAq6PfozWhk">
+      <div class="icon" data-page-node-id="Fh2ip6UASHNW4zJKUEV21o">🌿</div><div class="cost" data-page-node-id="hEdybENvYZqKhian9JUyI3">200</div><div class="name" data-page-node-id="dyrtG2dCOyYJJ8lizYqpwm">双发射手</div>
+    </div>
+    <div class="seed" data-type="wallnut" data-page-node-id="7WbdFI7mrHC5xV1DsCdCcY">
+      <div class="icon" data-page-node-id="FFYYzozD3PZ0uwRqLao53n">🥜</div><div class="cost" data-page-node-id="fYVLO4txsOx4pXLJ7REDu0">50</div><div class="name" data-page-node-id="SOE3ZCRVZQGyC5mChtCQTx">坚果墙</div>
+    </div>
+    <div class="seed" data-type="cherry" data-page-node-id="aXZzxO7tFJH1isF3BBBSck">
+      <div class="icon" data-page-node-id="XOEAjiYfdBc5pg7JzmQhfD">🍒</div><div class="cost" data-page-node-id="qiyDKGsbIttnwPbTDE8TL3">150</div><div class="name" data-page-node-id="h5WSdLqA2hBKIhOFn1F39E">樱桃炸弹</div>
+    </div>
+  </div>
+
+  <div class="board-wrap" data-page-node-id="cQ239opXHtzLsk250Adi9x">
+    <canvas id="board" width="740" height="520" data-page-node-id="gWkOk3dUm8KgPoGGucIG3u"></canvas>
+    <div class="overlay" id="startOverlay" data-page-node-id="iW2UAxrp9EBZkb0GxHY9xv">
+      <h2 data-page-node-id="xmt2oSRlpTHQ8X3OYkAUWe">僵尸来袭！</h2>
+      <p data-page-node-id="7sAHzAJNjGdVcricHc7uSa">🌻 向日葵攒阳光 · 🌱 豌豆射手输出 · ❄️ 寒冰射手减速<br data-page-node-id="NqLVsOMMkdfnHnB58OUCoc">🌿 双发射手爆发 · 🥜 坚果墙顶前排 · 🍒 樱桃炸弹秒一片<br data-page-node-id="yebUJ54BnZxtFajVhe5f6g">点击掉落的 ☀️ 收集阳光 · 🚜 每排一辆救场小推车（仅一次）<br data-page-node-id="y8cFSUdYd8DCC6EmfMTXC7">守住 5 波进攻即可获胜！<br data-page-node-id="Ud4dvBivwquEoPtj2p1dyy">后期会出现戴铁桶的硬茬，用 🍒 樱桃炸弹伺候</p>
+      <button id="startBtn" data-page-node-id="rcb7i1yXmZT4Teg7TwuylH">开始游戏</button>
+    </div>
+    <div class="overlay" id="endOverlay" style="display:none;" data-page-node-id="rgixSUeEybIqHvxFUN5AzD">
+      <h2 id="endTitle" data-page-node-id="lr9iyAaKBIMyR5qeLAjJZp">游戏结束</h2>
+      <p id="endText" data-page-node-id="7wE0p9MAOKMQawktZLyqOM"></p>
+      <button id="retryBtn" data-page-node-id="xaWs3ttIM6PxojArDnGHMw">再来一局</button>
+    </div>
+  </div>
+
+  <div class="status" data-page-node-id="HPG668Tm0vcYvEzW4c55J7">当前波次 <b id="wave" data-page-node-id="kskeDcQVUfFM4KArHQwDn3">0</b> / 5 · 消灭僵尸 <b id="kills" data-page-node-id="l7qYDlwDaAJJeKjfsfPqZF">0</b> · 再点一次已选卡片可取消</div>
+  <footer data-page-node-id="BAKXwPA79cflYBrgvjhEBy">Deployed on Vercel · Powered by Vibecoding</footer>
+
+<script>
+(function () {
+  var canvas = document.getElementById('board');
+  var ctx = canvas.getContext('2d');
+
+  // Retina 高清渲染：逻辑尺寸 740x520，物理像素按设备放大
+  var VW = 740, VH = 520;
+  var DPR = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = VW * DPR;
+  canvas.height = VH * DPR;
+  ctx.scale(DPR, DPR);
+
+  var sunEl = document.getElementById('sun');
+  var waveEl = document.getElementById('wave');
+  var killsEl = document.getElementById('kills');
+  var startOverlay = document.getElementById('startOverlay');
+  var endOverlay = document.getElementById('endOverlay');
+
+  var COLS = 9, ROWS = 5;
+  var CELL_W = 78, CELL_H = 96;
+  var BOARD_X = 10, BOARD_Y = 10;
+  var HOUSE_W = 44;
+  var LAWN_W = COLS * CELL_W;
+
+  var PLANTS = {
+    sunflower:  { cost: 50,  hp: 90 },
+    peashooter: { cost: 100, hp: 120 },
+    snowpea:    { cost: 175, hp: 120 },
+    repeater:   { cost: 200, hp: 120 },
+    wallnut:    { cost: 50,  hp: 500 },
+    cherry:     { cost: 150, hp: 999 }
+  };
+
+  var WAVES = [
+    { count: 3,  interval: 6,   types: ['normal'] },
+    { count: 5,  interval: 5,   types: ['normal', 'normal', 'cone'] },
+    { count: 7,  interval: 4,   types: ['normal', 'cone', 'normal', 'cone'] },
+    { count: 10, interval: 3.5, types: ['cone', 'normal', 'cone', 'normal', 'bucket'] },
+    { count: 13, interval: 3,   types: ['cone', 'bucket', 'normal', 'cone', 'bucket'] }
+  ];
+
+  var state = null;
+  var selected = null;
+  var lastTime = 0, rafId = null;
+
+  function newGame() {
+    state = {
+      sun: 150, wave: 0, kills: 0,
+      grid: [], zombies: [], peas: [], suns: [],
+      particles: [], rings: [],
+      mowers: [], decors: [], ambient: [],
+      spawnQueue: [], spawnTimer: 0,
+      waveRest: 3, skySunTimer: 4,
+      time: 0, over: false, won: false,
+      waveBanner: 0, flash: 0
+    };
+    for (var r = 0; r < ROWS; r++) {
+      state.grid[r] = [];
+      for (var c = 0; c < COLS; c++) state.grid[r][c] = null;
+      state.mowers.push({ row: r, x: BOARD_X + HOUSE_W - 10, active: false, used: false, wheel: 0 });
+    }
+    for (var d = 0; d < 34; d++) {
+      state.decors.push({
+        x: BOARD_X + HOUSE_W + 10 + Math.random() * (LAWN_W - 30),
+        y: BOARD_Y + 12 + Math.random() * (VH - 24),
+        kind: Math.random() < 0.22 ? 'flower' : (Math.random() < 0.3 ? 'sprout' : 'grass'),
+        s: 0.7 + Math.random() * 0.6,
+        ph: Math.random() * 6
+      });
+    }
+    // 漂浮花粉
+    for (var a2 = 0; a2 < 16; a2++) {
+      state.ambient.push({
+        x: BOARD_X + Math.random() * LAWN_W,
+        y: BOARD_Y + Math.random() * (VH - 20),
+        vx: 4 + Math.random() * 8, vy: -3 + Math.random() * 6,
+        ph: Math.random() * 6, size: 1 + Math.random() * 1.8
+      });
+    }
+    updateHUD();
+  }
+
+  function updateHUD() {
+    sunEl.textContent = state.sun;
+    waveEl.textContent = state.wave;
+    killsEl.textContent = state.kills;
+    document.querySelectorAll('.seed').forEach(function (el) {
+      var cost = PLANTS[el.getAttribute('data-type')].cost;
+      el.classList.toggle('locked', state.sun < cost);
+    });
+  }
+
+  function cellAt(px, py) {
+    var c = Math.floor((px - BOARD_X) / CELL_W);
+    var r = Math.floor((py - BOARD_Y) / CELL_H);
+    if (c < 0 || c >= COLS || r < 0 || r >= ROWS) return null;
+    return { row: r, col: c };
+  }
+  function cellX(col) { return BOARD_X + col * CELL_W; }
+  function cellY(row) { return BOARD_Y + row * CELL_H; }
+  function cx(col) { return cellX(col) + CELL_W / 2; }
+  function cy(row) { return cellY(row) + CELL_H / 2; }
+
+  document.querySelectorAll('.seed').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var type = el.getAttribute('data-type');
+      if (state.sun < PLANTS[type].cost) return;
+      selected = (selected === type) ? null : type;
+      document.querySelectorAll('.seed').forEach(function (s) {
+        s.classList.toggle('selected', s.getAttribute('data-type') === selected);
+      });
+    });
+  });
+
+  canvas.addEventListener('click', function (e) {
+    if (!state || state.over) return;
+    var rect = canvas.getBoundingClientRect();
+    var px = (e.clientX - rect.left) * (VW / rect.width);
+    var py = (e.clientY - rect.top) * (VH / rect.height);
+
+    for (var i = state.suns.length - 1; i >= 0; i--) {
+      var s = state.suns[i];
+      var dx = px - s.x, dy = py - s.y;
+      if (dx * dx + dy * dy < 30 * 30) {
+        state.sun += s.value;
+        state.suns.splice(i, 1);
+        burst(s.x, s.y, '#ffe27a', 10);
+        updateHUD();
+        return;
+      }
+    }
+
+    var cell = cellAt(px, py);
+    if (!cell || !selected) return;
+    var def = PLANTS[selected];
+    if (state.sun < def.cost) return;
+    if (state.grid[cell.row][cell.col]) return;
+    state.grid[cell.row][cell.col] = {
+      type: selected, hp: def.hp, maxHp: def.hp,
+      row: cell.row, col: cell.col,
+      timer: Math.random() * 2, shootTimer: 0,
+      fuse: selected === 'cherry' ? 1.2 : 0,
+      pop: 0.25, flash: 0
+    };
+    state.sun -= def.cost;
+    burst(cx(cell.col), cy(cell.row), '#9fe08f', 10);
+    updateHUD();
+  });
+
+  function burst(x, y, color, n, spd) {
+    spd = spd || 120;
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var v = spd * (0.4 + Math.random() * 0.8);
+      state.particles.push({
+        x: x, y: y,
+        vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40,
+        life: 0.45 + Math.random() * 0.35,
+        size: 2 + Math.random() * 3, color: color
+      });
+    }
+  }
+
+  function ring(x, y, color, maxR) {
+    state.rings.push({ x: x, y: y, r: 10, maxR: maxR || 110, color: color, life: 0.5 });
+  }
+
+  // ---------- 更新 ----------
+  function update(dt) {
+    state.time += dt;
+
+    state.skySunTimer -= dt;
+    if (state.skySunTimer <= 0) {
+      state.skySunTimer = 7 + Math.random() * 4;
+      var sx = BOARD_X + 50 + Math.random() * (LAWN_W - 100);
+      state.suns.push({ x: sx, y: 40, targetY: 120 + Math.random() * 300, value: 25, life: 12, wob: Math.random() * 6 });
+    }
+
+    for (var i = state.suns.length - 1; i >= 0; i--) {
+      var s = state.suns[i];
+      if (s.y < s.targetY) s.y += 36 * dt;
+      s.wob += dt * 3;
+      s.life -= dt;
+      if (s.life <= 0) state.suns.splice(i, 1);
+    }
+
+    if (state.waveBanner > 0) state.waveBanner -= dt;
+    if (state.flash > 0) state.flash -= dt;
+
+    // 漂浮花粉
+    for (var am = 0; am < state.ambient.length; am++) {
+      var sp2 = state.ambient[am];
+      sp2.ph += dt;
+      sp2.x += sp2.vx * dt + Math.sin(sp2.ph * 0.9) * 9 * dt;
+      sp2.y += sp2.vy * dt;
+      if (sp2.x > BOARD_X + LAWN_W + 12) sp2.x = BOARD_X - 12;
+      if (sp2.y < BOARD_Y - 12) sp2.y = VH - 8;
+      if (sp2.y > VH + 4) sp2.y = BOARD_Y;
+    }
+
+    if (state.spawnQueue.length === 0 && state.zombies.length === 0) {
+      if (state.wave >= WAVES.length) { win(); return; }
+      state.waveRest -= dt;
+      if (state.waveRest <= 0) {
+        state.wave++;
+        state.waveRest = 5;
+        state.waveBanner = 2.2;
+        updateHUD();
+        var w = WAVES[state.wave - 1];
+        for (var k = 0; k < w.count; k++) {
+          state.spawnQueue.push({ delay: k * w.interval + Math.random(), type: w.types[k % w.types.length] });
+        }
+      }
+    }
+    state.spawnTimer += dt;
+    for (var q = state.spawnQueue.length - 1; q >= 0; q--) {
+      if (state.spawnTimer >= 5 + state.spawnQueue[q].delay) {
+        var t = state.spawnQueue[q].type;
+        state.spawnQueue.splice(q, 1);
+        var row = Math.floor(Math.random() * ROWS);
+        state.zombies.push({
+          type: t, row: row,
+          x: BOARD_X + LAWN_W + 20,
+          hp: t === 'cone' ? 260 : (t === 'bucket' ? 420 : 130),
+          maxHp: t === 'cone' ? 260 : (t === 'bucket' ? 420 : 130),
+          speed: (t === 'cone' ? 13 : (t === 'bucket' ? 11 : 16)) + state.wave * 0.8,
+          eating: false, hurtFlash: 0, slow: 0, dying: 0,
+          v: 0.92 + Math.random() * 0.16
+        });
+      }
+    }
+
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        var p = state.grid[r][c];
+        if (!p) continue;
+        if (p.pop > 0) p.pop -= dt;
+        if (p.flash > 0) p.flash -= dt;
+
+        if (p.type === 'cherry') {
+          p.fuse -= dt;
+          if (p.fuse <= 0) {
+            cherryBoom(p);
+            continue;
+          }
+        }
+
+        if (p.type === 'sunflower') {
+          p.timer -= dt;
+          if (p.timer <= 0) {
+            p.timer = 8;
+            p.flash = 0.7;
+            state.suns.push({
+              x: cx(c) + (Math.random() - 0.5) * 30, y: cellY(r) + 30,
+              targetY: cy(r) + 10, value: 25, life: 10, wob: Math.random() * 6
+            });
+          }
+        }
+
+        if (p.type === 'peashooter' || p.type === 'snowpea' || p.type === 'repeater') {
+          var hasTarget = state.zombies.some(function (z) {
+            return !z.dying && z.row === r && z.x > cellX(c) && z.x < BOARD_X + LAWN_W + 30;
+          });
+          p.shootTimer -= dt;
+          if (hasTarget && p.shootTimer <= 0) {
+            p.shootTimer = p.type === 'repeater' ? 1.5 : 1.4;
+            p.recoil = 0.12;
+            var ice = p.type === 'snowpea';
+            state.peas.push({ row: r, x: cellX(c) + 30, speed: 220, ice: ice });
+            if (p.type === 'repeater') {
+              state.peas.push({ row: r, x: cellX(c) + 12, speed: 220, ice: false });
+            }
+            // 枪口火光
+            burst(cellX(c) + 34, cy(r) - 12, ice ? '#cfeeff' : '#e2f7b0', 3, 50);
+          }
+          if (p.recoil > 0) p.recoil -= dt;
+        }
+      }
+    }
+
+    for (var a = state.peas.length - 1; a >= 0; a--) {
+      var pea = state.peas[a];
+      pea.x += pea.speed * dt;
+      if (pea.x > BOARD_X + LAWN_W + 40) { state.peas.splice(a, 1); continue; }
+      for (var z = 0; z < state.zombies.length; z++) {
+        var zb = state.zombies[z];
+        if (!zb.dying && zb.row === pea.row && Math.abs(zb.x - pea.x) < 18) {
+          zb.hp -= 25;
+          zb.hurtFlash = 0.12;
+          if (pea.ice) { zb.slow = 3.5; burst(pea.x, cy(pea.row) - 12, '#aee4ff', 6, 60); }
+          state.peas.splice(a, 1);
+          burst(pea.x, cy(pea.row) - 12, pea.ice ? '#aee4ff' : '#9fe08f', 4, 70);
+          break;
+        }
+      }
+    }
+
+    for (var zi = state.zombies.length - 1; zi >= 0; zi--) {
+      var z2 = state.zombies[zi];
+
+      // 死亡倒地动画播完再移除
+      if (z2.dying > 0) {
+        z2.dying -= dt;
+        if (z2.dying <= 0) state.zombies.splice(zi, 1);
+        continue;
+      }
+
+      if (z2.hurtFlash > 0) z2.hurtFlash -= dt;
+      if (z2.slow > 0) z2.slow -= dt;
+
+      var frontCol = Math.floor((z2.x - BOARD_X - 10) / CELL_W);
+      var plant = (frontCol >= 0 && frontCol < COLS) ? state.grid[z2.row][frontCol] : null;
+
+      if (plant) {
+        plant.hp -= 28 * dt;
+        z2.eating = true;
+        if (plant.hp <= 0) {
+          burst(cx(frontCol), cy(z2.row), '#8fce8f', 12);
+          state.grid[z2.row][frontCol] = null;
+          z2.eating = false;
+        }
+      } else {
+        z2.eating = false;
+        var sp = z2.speed * (z2.slow > 0 ? 0.45 : 1);
+        z2.x -= sp * dt;
+      }
+
+      if (z2.x < BOARD_X + HOUSE_W + 16) {
+        var mower = state.mowers[z2.row];
+        if (mower && !mower.used && !mower.active) {
+          mower.active = true;
+          burst(mower.x, cy(mower.row), '#ffd54a', 10);
+          ring(mower.x, cy(mower.row), 'rgba(255,213,74,0.8)', 60);
+        } else if (!mower || mower.used) {
+          lose(); return;
+        }
+      }
+
+      if (z2.hp <= 0) {
+        z2.dying = 0.9;
+        z2.eating = false;
+        state.kills++;
+        burst(z2.x, cy(z2.row), '#c8e6c9', 12);
+        updateHUD();
+      }
+    }
+
+    for (var mi = 0; mi < state.mowers.length; mi++) {
+      var mw = state.mowers[mi];
+      if (!mw.active || mw.used) continue;
+      mw.x += 340 * dt;
+      mw.wheel += dt * 22;
+      // 草屑飞溅
+      if (Math.random() < 0.6) {
+        state.particles.push({
+          x: mw.x - 16, y: cy(mw.row) + 10,
+          vx: -40 - Math.random() * 60, vy: -60 - Math.random() * 70,
+          life: 0.4 + Math.random() * 0.3, size: 1.5 + Math.random() * 2,
+          color: Math.random() < 0.5 ? '#7cc25a' : '#4e8a3c'
+        });
+      }
+      for (var mz = state.zombies.length - 1; mz >= 0; mz--) {
+        var zm = state.zombies[mz];
+        if (zm.row === mw.row && Math.abs(zm.x - mw.x) < 26) {
+          state.zombies.splice(mz, 1);
+          state.kills++;
+          burst(zm.x, cy(zm.row), '#ffd54a', 18);
+          updateHUD();
+        }
+      }
+      if (mw.x > BOARD_X + LAWN_W + 60) { mw.used = true; mw.active = false; }
+    }
+
+    for (var pi = state.particles.length - 1; pi >= 0; pi--) {
+      var pt = state.particles[pi];
+      pt.x += pt.vx * dt; pt.y += pt.vy * dt;
+      pt.vy += 220 * dt;
+      pt.life -= dt;
+      if (pt.life <= 0) state.particles.splice(pi, 1);
+    }
+    for (var ri = state.rings.length - 1; ri >= 0; ri--) {
+      var rg = state.rings[ri];
+      rg.r += (rg.maxR - rg.r) * 6 * dt + 60 * dt;
+      rg.life -= dt;
+      if (rg.life <= 0) state.rings.splice(ri, 1);
+    }
+  }
+
+  function cherryBoom(p) {
+    var bx = cx(p.col), by = cy(p.row);
+    state.grid[p.row][p.col] = null;
+    for (var zi = state.zombies.length - 1; zi >= 0; zi--) {
+      var z = state.zombies[zi];
+      var nearRow = Math.abs(z.row - p.row) <= 1;
+      if (nearRow && Math.abs(z.x - bx) < 118) {
+        z.hp = 0;
+      }
+    }
+    // 清掉刚判死的
+    for (var zj = state.zombies.length - 1; zj >= 0; zj--) {
+      if (state.zombies[zj].hp <= 0) {
+        burst(state.zombies[zj].x, cy(state.zombies[zj].row), '#ffab6b', 16, 180);
+        state.zombies.splice(zj, 1);
+        state.kills++;
+      }
+    }
+    burst(bx, by, '#ff7043', 26, 240);
+    burst(bx, by, '#ffca28', 18, 160);
+    burst(bx, by, 'rgba(100,100,100,0.85)', 12, 80);
+    ring(bx, by, 'rgba(255,112,67,0.85)', 130);
+    ring(bx, by, 'rgba(255,213,79,0.7)', 90);
+    state.shake = 0.35;
+    state.flash = 0.28;
+    updateHUD();
+  }
+
+  function win() {
+    state.over = true; state.won = true;
+    cancelAnimationFrame(rafId);
+    document.getElementById('endTitle').textContent = '🎉 草坪守住了！';
+    document.getElementById('endText').innerHTML = '5 波僵尸全部消灭<br>击杀数：<b style="color:#ffe27a;font-size:20px">' + state.kills + '</b>';
+    endOverlay.style.display = 'flex';
+  }
+
+  function lose() {
+    state.over = true; state.won = false;
+    cancelAnimationFrame(rafId);
+    document.getElementById('endTitle').textContent = '🧟 僵尸吃掉了你的脑子';
+    document.getElementById('endText').innerHTML = '守到了第 <b style="color:#ffe27a">' + state.wave + '</b> 波 · 击杀 <b style="color:#ffe27a">' + state.kills + '</b><br>提示：前排坚果墙 + 中排双发/寒冰，樱桃留给僵尸扎堆时';
+    endOverlay.style.display = 'flex';
+  }
+
+  // ---------- 绘制 ----------
+  function draw() {
+    ctx.save();
+    if (state.shake > 0) {
+      state.shake -= 0.016;
+      ctx.translate((Math.random() - 0.5) * state.shake * 22, (Math.random() - 0.5) * state.shake * 22);
+    }
+
+    drawBackground();
+    drawDecors();
+    drawPreview();
+
+    for (var rr = 0; rr < ROWS; rr++)
+      for (var cc = 0; cc < COLS; cc++)
+        if (state.grid[rr][cc]) drawPlant(state.grid[rr][cc]);
+
+    drawPeas();
+    for (var mwi = 0; mwi < state.mowers.length; mwi++) drawMower(state.mowers[mwi]);
+    for (var zz = 0; zz < state.zombies.length; zz++) drawZombie(state.zombies[zz]);
+    for (var ss = 0; ss < state.suns.length; ss++) drawSun(state.suns[ss]);
+    drawEffects();
+    drawAmbient();
+    drawVignette();
+    drawBanner();
+
+    // 爆炸白闪
+    if (state.flash > 0) {
+      ctx.fillStyle = 'rgba(255,240,200,' + Math.min(0.55, state.flash * 1.6) + ')';
+      ctx.fillRect(0, 0, VW, VH);
+    }
+
+    ctx.restore();
+  }
+
+  function drawBackground() {
+    var houseW = BOARD_X + HOUSE_W;
+
+    // 背景渐层
+    var sky = ctx.createLinearGradient(0, 0, 0, VH);
+    sky.addColorStop(0, '#2c4a33');
+    sky.addColorStop(1, '#24512e');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, VW, VH);
+
+    // 房子：木板墙
+    var hg = ctx.createLinearGradient(0, 0, houseW, 0);
+    hg.addColorStop(0, '#5b4127');
+    hg.addColorStop(1, '#3f2d1a');
+    ctx.fillStyle = hg;
+    ctx.fillRect(0, 0, houseW, VH);
+    ctx.fillStyle = 'rgba(0,0,0,0.16)';
+    for (var hb = 0; hb < VH; hb += 16) ctx.fillRect(0, hb, houseW, 2);
+    ctx.fillStyle = 'rgba(255,220,150,0.06)';
+    ctx.fillRect(0, 0, 2, VH);
+
+    // 门 + 门把手
+    ctx.fillStyle = '#2c1f12';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(8, VH / 2 - 44, 22, 90, [8, 8, 0, 0]); else ctx.rect(8, VH / 2 - 44, 22, 90);
+    ctx.fill();
+    ctx.fillStyle = '#c9a03a';
+    ctx.beginPath(); ctx.arc(25, VH / 2 + 2, 2, 0, Math.PI * 2); ctx.fill();
+
+    // 两扇暖光窗
+    [VH / 2 - 130, VH / 2 + 66].forEach(function (wy) {
+      ctx.fillStyle = 'rgba(255,206,61,0.9)';
+      ctx.fillRect(9, wy, 16, 20);
+      ctx.fillStyle = 'rgba(255,244,180,0.75)';
+      ctx.fillRect(11, wy + 2, 5, 7);
+      ctx.strokeStyle = '#2c1f12'; ctx.lineWidth = 1.5;
+      ctx.strokeRect(9, wy, 16, 20);
+    });
+
+    // 行间过道
+    ctx.fillStyle = '#5d4633';
+    for (var hr = 0; hr < ROWS; hr++) ctx.fillRect(BOARD_X - 5, cellY(hr) + 8, 5, CELL_H - 16);
+
+    // 草坪格子（双色 + 每格轻微渐变）
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        var light = (r + c) % 2 === 0;
+        var g = ctx.createLinearGradient(0, cellY(r), 0, cellY(r) + CELL_H);
+        if (light) { g.addColorStop(0, '#5ba863'); g.addColorStop(1, '#4f9857'); }
+        else { g.addColorStop(0, '#50995a'); g.addColorStop(1, '#448a4e'); }
+        ctx.fillStyle = g;
+        ctx.fillRect(cellX(c), cellY(r), CELL_W, CELL_H);
+        ctx.fillStyle = 'rgba(255,255,255,0.045)';
+        ctx.fillRect(cellX(c), cellY(r), CELL_W, 2);
+      }
+    }
+
+    // 割草条纹光泽
+    for (var sr = 0; sr < ROWS; sr++) {
+      var sg = ctx.createLinearGradient(0, cellY(sr), 0, cellY(sr) + CELL_H);
+      sg.addColorStop(0, 'rgba(255,255,255,' + (sr % 2 === 0 ? 0.05 : 0.015) + ')');
+      sg.addColorStop(0.5, 'rgba(255,255,255,0)');
+      sg.addColorStop(1, 'rgba(0,0,0,' + (sr % 2 === 0 ? 0.03 : 0.06) + ')');
+      ctx.fillStyle = sg;
+      ctx.fillRect(BOARD_X, cellY(sr), LAWN_W, CELL_H);
+    }
+
+    ctx.strokeStyle = 'rgba(20,45,28,0.25)';
+    ctx.lineWidth = 1;
+    for (var c2 = 0; c2 <= COLS; c2++) {
+      ctx.beginPath(); ctx.moveTo(cellX(c2) + 0.5, BOARD_Y); ctx.lineTo(cellX(c2) + 0.5, BOARD_Y + ROWS * CELL_H); ctx.stroke();
+    }
+    for (var r2 = 0; r2 <= ROWS; r2++) {
+      ctx.beginPath(); ctx.moveTo(BOARD_X, cellY(r2) + 0.5); ctx.lineTo(BOARD_X + LAWN_W, cellY(r2) + 0.5); ctx.stroke();
+    }
+
+    // 午后暖阳（左上斜射的暖光）
+    var sunGlow = ctx.createRadialGradient(VW * 0.18, -40, 30, VW * 0.18, -40, VW * 0.95);
+    sunGlow.addColorStop(0, 'rgba(255,236,170,0.16)');
+    sunGlow.addColorStop(0.5, 'rgba(255,236,170,0.05)');
+    sunGlow.addColorStop(1, 'rgba(255,236,170,0)');
+    ctx.fillStyle = sunGlow;
+    ctx.fillRect(0, 0, VW, VH);
+
+    // 两道缓慢呼吸的阳光光束
+    ctx.save();
+    ctx.globalAlpha = 0.05 + Math.sin(state.time * 0.4) * 0.015;
+    ctx.fillStyle = '#ffe9a8';
+    ctx.beginPath(); ctx.moveTo(60, -10); ctx.lineTo(190, -10); ctx.lineTo(430, VH); ctx.lineTo(300, VH); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 0.035;
+    ctx.beginPath(); ctx.moveTo(260, -10); ctx.lineTo(330, -10); ctx.lineTo(610, VH); ctx.lineTo(540, VH); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawDecors() {
+    for (var di = 0; di < state.decors.length; di++) {
+      var dc = state.decors[di];
+      var sway = Math.sin(state.time * 1.6 + dc.ph) * 2;
+      if (dc.kind === 'grass') {
+        ctx.strokeStyle = 'rgba(30,80,40,0.5)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(dc.x, dc.y);
+        ctx.quadraticCurveTo(dc.x + sway, dc.y - 6 * dc.s, dc.x + sway * 1.6, dc.y - 11 * dc.s);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(dc.x + 3, dc.y);
+        ctx.quadraticCurveTo(dc.x + 3 - sway, dc.y - 5 * dc.s, dc.x + 3 - sway * 1.4, dc.y - 9 * dc.s);
+        ctx.stroke();
+      } else if (dc.kind === 'sprout') {
+        ctx.strokeStyle = 'rgba(120,200,130,0.4)';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(dc.x, dc.y);
+        ctx.quadraticCurveTo(dc.x + sway, dc.y - 8 * dc.s, dc.x + sway * 2, dc.y - 12 * dc.s);
+        ctx.stroke();
+      } else {
+        for (var fl = 0; fl < 5; fl++) {
+          var fa = (Math.PI * 2 / 5) * fl + dc.ph;
+          ctx.fillStyle = 'rgba(255,255,255,0.65)';
+          ctx.beginPath();
+          ctx.arc(dc.x + Math.cos(fa) * 3.5 * dc.s, dc.y + Math.sin(fa) * 3.5 * dc.s, 2.3 * dc.s, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.fillStyle = '#ffd76e';
+        ctx.beginPath(); ctx.arc(dc.x, dc.y, 1.7 * dc.s, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  function drawPreview() {
+    if (!selected) return;
+    var mouse = window.__pvzMouse;
+    if (!mouse) return;
+    var cell = cellAt(mouse.x, mouse.y);
+    if (!cell) return;
+    var ok = !state.grid[cell.row][cell.col] && state.sun >= PLANTS[selected].cost;
+    ctx.strokeStyle = ok ? 'rgba(255,226,122,0.95)' : 'rgba(240,110,90,0.85)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([7, 5]);
+    ctx.strokeRect(cellX(cell.col) + 3, cellY(cell.row) + 3, CELL_W - 6, CELL_H - 6);
+    ctx.setLineDash([]);
+    if (ok) {
+      ctx.globalAlpha = 0.28;
+      drawPlantAt(selected, cx(cell.col), cy(cell.row), 0, cell.col, cell.row);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function drawPeas() {
+    for (var b = 0; b < state.peas.length; b++) {
+      var pe = state.peas[b];
+      var py = cy(pe.row) - 12;
+      // 尾迹
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = pe.ice ? '#9edcff' : '#8fd06a';
+      ctx.beginPath(); ctx.arc(pe.x - 12, py, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pe.x - 22, py, 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      // 本体（发光）
+      var g = ctx.createRadialGradient(pe.x - 2, py - 2, 1, pe.x, py, 7);
+      if (pe.ice) { g.addColorStop(0, '#e8f8ff'); g.addColorStop(0.6, '#9edcff'); g.addColorStop(1, '#4aa8e8'); }
+      else { g.addColorStop(0, '#d4f4b0'); g.addColorStop(0.6, '#8fd06a'); g.addColorStop(1, '#4e8a2e'); }
+      ctx.fillStyle = g;
+      ctx.save();
+      ctx.shadowColor = pe.ice ? 'rgba(140,220,255,0.9)' : 'rgba(190,255,130,0.85)';
+      ctx.shadowBlur = 10;
+      ctx.beginPath(); ctx.arc(pe.x, py, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+      if (pe.ice) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(pe.x - 3, py - 4); ctx.lineTo(pe.x + 3, py + 4); ctx.stroke();
+      }
+    }
+  }
+
+  function drawMower(mw) {
+    if (mw.used) return;
+    var x = mw.x, y = cy(mw.row);
+    ctx.save();
+    ctx.translate(x, y);
+
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath(); ctx.ellipse(0, 16, 22, 6, 0, 0, Math.PI * 2); ctx.fill();
+
+    if (mw.active) {
+      for (var i = 1; i <= 3; i++) {
+        ctx.fillStyle = 'rgba(220,220,220,' + (0.4 - i * 0.09) + ')';
+        ctx.beginPath();
+        ctx.arc(-30 - i * 14, 6 + Math.sin(state.time * 20 + i) * 4, 6 - i, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    var bg = ctx.createLinearGradient(0, -16, 0, 8);
+    bg.addColorStop(0, '#e85a44');
+    bg.addColorStop(1, '#a83325');
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(-18, -16, 36, 24, 6); else ctx.rect(-18, -16, 36, 24);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.fillRect(-16, -14, 32, 5);
+    ctx.fillStyle = '#f0b13d';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(-7, -12, 14, 7, 2); else ctx.rect(-7, -12, 14, 7);
+    ctx.fill();
+
+    ctx.strokeStyle = '#7c7c7c'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(14, -12); ctx.lineTo(26, -32); ctx.stroke();
+    ctx.strokeStyle = '#5a5a5a'; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.moveTo(24, -33); ctx.lineTo(29, -30); ctx.stroke();
+
+    ctx.save();
+    ctx.translate(-13, 9);
+    ctx.rotate(mw.wheel);
+    ctx.fillStyle = '#9a9a9a';
+    for (var b2 = 0; b2 < 4; b2++) {
+      ctx.rotate(Math.PI / 2);
+      ctx.fillRect(-2, -11, 4, 10);
+    }
+    ctx.fillStyle = '#c8c8c8';
+    ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    for (var w = 0; w < 2; w++) {
+      var wx = w === 0 ? 8 : -2;
+      ctx.fillStyle = '#2e2e2e';
+      ctx.beginPath(); ctx.arc(wx, 12, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#9a9a9a';
+      ctx.beginPath(); ctx.arc(wx, 12, 2.8, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#777'; ctx.lineWidth = 1.5;
+      ctx.save(); ctx.translate(wx, 12); ctx.rotate(mw.wheel);
+      ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(5, 0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(0, 5); ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  // 植物统一入口（带弹跳出场动画）
+  function drawPlant(p) {
+    var x = cx(p.col), y = cy(p.row);
+    var scale = p.pop > 0 ? 1 + Math.sin(p.pop * 26) * 0.12 : 1;
+    drawPlantAt(p.type, x, y, scale, p.col, p.row, p);
+  }
+
+  function drawPlantAt(type, x, y, scale, col, row, p) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+
+    // 种植土壤
+    if (p) {
+      var sg2 = ctx.createRadialGradient(0, 26, 2, 0, 26, 24);
+      sg2.addColorStop(0, 'rgba(74,52,30,0.55)');
+      sg2.addColorStop(1, 'rgba(74,52,30,0)');
+      ctx.fillStyle = sg2;
+      ctx.beginPath(); ctx.ellipse(0, 26, 24, 8, 0, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // 影子
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath(); ctx.ellipse(0, 26, 21, 6.5, 0, 0, Math.PI * 2); ctx.fill();
+
+    // 血条
+    if (p && p.type !== 'cherry' && p.hp < p.maxHp) {
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(-27, -46, 54, 7);
+      ctx.fillStyle = '#7ed07e';
+      ctx.fillRect(-26, -45, 52 * Math.max(0, p.hp / p.maxHp), 5);
+    }
+
+    if (type === 'sunflower') drawSunflower(col, p);
+    else if (type === 'peashooter') drawShooter(col, false, p);
+    else if (type === 'snowpea') drawShooter(col, true, p);
+    else if (type === 'repeater') drawRepeater(col, p);
+    else if (type === 'wallnut') drawWallnut(row, p);
+    else if (type === 'cherry') drawCherry(p);
+
+    ctx.restore();
+  }
+
+  function drawSunflower(col, p) {
+    var sway = Math.sin(state.time * 2 + col * 1.3) * 0.07;
+    ctx.save();
+    ctx.rotate(sway);
+
+    // 产阳光时的金色光晕
+    if (p && p.flash > 0) {
+      var fa = Math.min(0.6, p.flash);
+      var fgd = ctx.createRadialGradient(0, -15, 4, 0, -15, 34);
+      fgd.addColorStop(0, 'rgba(255,226,122,' + fa + ')');
+      fgd.addColorStop(1, 'rgba(255,226,122,0)');
+      ctx.fillStyle = fgd;
+      ctx.beginPath(); ctx.arc(0, -15, 34, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // 茎 + 双叶
+    var stem = ctx.createLinearGradient(-3, 0, 3, 0);
+    stem.addColorStop(0, '#2e7a32'); stem.addColorStop(0.5, '#48a04c'); stem.addColorStop(1, '#2e7a32');
+    ctx.fillStyle = stem;
+    ctx.fillRect(-3, -2, 6, 28);
+    ctx.fillStyle = '#3e8e41';
+    ctx.beginPath(); ctx.ellipse(-11, 8, 9, 4.5, -0.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(11, 12, 9, 4.5, 0.5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#2e7a32'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-11, 8); ctx.lineTo(-4, 10); ctx.stroke();
+
+    // 花瓣（两层）
+    for (var i = 0; i < 12; i++) {
+      var ang = (Math.PI * 2 / 12) * i + state.time * 0.15;
+      ctx.fillStyle = i % 2 === 0 ? '#ffd23d' : '#ffc21a';
+      ctx.beginPath();
+      ctx.ellipse(Math.cos(ang) * 17, Math.sin(ang) * 17 - 15, 10, 5.2, ang, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // 花盘
+    var fg = ctx.createRadialGradient(-3, -19, 2, 0, -15, 12);
+    fg.addColorStop(0, '#a5712f'); fg.addColorStop(0.7, '#8a5a2b'); fg.addColorStop(1, '#6d441f');
+    ctx.fillStyle = fg;
+    ctx.beginPath(); ctx.arc(0, -15, 11.5, 0, Math.PI * 2); ctx.fill();
+    // 花盘网格
+    ctx.strokeStyle = 'rgba(60,35,10,0.5)'; ctx.lineWidth = 0.8;
+    for (var k = 0; k < 3; k++) {
+      var ka = state.time * 0.15 + k * Math.PI / 3;
+      ctx.beginPath(); ctx.moveTo(Math.cos(ka) * 10, -15 + Math.sin(ka) * 10);
+      ctx.lineTo(Math.cos(ka + Math.PI) * 10, -15 + Math.sin(ka + Math.PI) * 10); ctx.stroke();
+    }
+    // 笑脸
+    ctx.fillStyle = '#f5e6c8';
+    ctx.beginPath(); ctx.arc(-3.5, -17, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3.5, -17, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#3a2410';
+    ctx.beginPath(); ctx.arc(-3, -17, 1, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(4, -17, 1, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#3a2410'; ctx.lineWidth = 1.2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(0, -13, 4, 0.25, Math.PI - 0.25); ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawShooterHead(ice) {
+    var base = ice ? ['#e8f8ff', '#9edcff', '#3d90c8'] : ['#d4f4b0', '#8fd06a', '#4e8a2e'];
+    var g = ctx.createRadialGradient(-4, -13, 3, 0, -9, 14);
+    g.addColorStop(0, base[0]); g.addColorStop(0.55, base[1]); g.addColorStop(1, base[2]);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, -9, 13.5, 0, Math.PI * 2); ctx.fill();
+
+    // 炮管
+    ctx.save();
+    ctx.rotate(-0.08);
+    var bg = ctx.createLinearGradient(0, -16, 0, -2);
+    if (ice) { bg.addColorStop(0, '#b8e4ff'); bg.addColorStop(1, '#5aa8dc'); }
+    else { bg.addColorStop(0, '#a8dd82'); bg.addColorStop(1, '#5e9a3c'); }
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(8, -14.5, 16, 11, 4); else ctx.rect(8, -14.5, 16, 11);
+    ctx.fill();
+    ctx.fillStyle = ice ? '#2d5a78' : '#2c5220';
+    ctx.beginPath(); ctx.ellipse(24, -9, 2.6, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = ice ? '#3d7ba8' : '#3e6e2a'; ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(8, -14.5, 16, 11, 4); else ctx.rect(8, -14.5, 16, 11);
+    ctx.stroke();
+    ctx.restore();
+
+    // 眼睛
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-4, -13, 3.4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3.5, -13, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#222';
+    ctx.beginPath(); ctx.arc(-3.2, -12.5, 1.7, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(4.3, -12.5, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.beginPath(); ctx.arc(-4.2, -13.8, 0.7, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3, -13.8, 0.6, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function drawShooter(col, ice, p) {
+    var recoil = (p && p.recoil > 0) ? Math.sin(p.recoil * 52) * 2.5 : 0;
+    var sway = Math.sin(state.time * 1.8 + col) * 0.04;
+    ctx.save();
+    ctx.rotate(sway);
+    ctx.translate(-recoil, 0);
+
+    var stem = ctx.createLinearGradient(-3, 0, 3, 0);
+    if (ice) { stem.addColorStop(0, '#3d7ba8'); stem.addColorStop(0.5, '#5aa8dc'); stem.addColorStop(1, '#3d7ba8'); }
+    else { stem.addColorStop(0, '#2e7a32'); stem.addColorStop(0.5, '#48a04c'); stem.addColorStop(1, '#2e7a32'); }
+    ctx.fillStyle = stem;
+    ctx.fillRect(-3, 2, 6, 24);
+    ctx.fillStyle = ice ? '#4a90c0' : '#3e8e41';
+    ctx.beginPath(); ctx.ellipse(-9, 10, 8, 4, -0.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(9, 14, 8, 4, 0.5, 0, Math.PI * 2); ctx.fill();
+
+    drawShooterHead(ice);
+
+    // 头顶小叶
+    ctx.fillStyle = ice ? '#7cc0e8' : '#6fbc55';
+    ctx.beginPath(); ctx.ellipse(-2, -23, 6, 3, -0.6, 0, Math.PI * 2); ctx.fill();
+
+    if (ice) {
+      // 寒气粒子
+      for (var i = 0; i < 3; i++) {
+        var pa = state.time * 2 + i * 2.1;
+        ctx.globalAlpha = 0.35 + Math.sin(pa) * 0.25;
+        ctx.fillStyle = '#dff4ff';
+        ctx.beginPath();
+        ctx.arc(Math.sin(pa) * 14 + 4, -26 + Math.cos(pa) * 4, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+  }
+
+  function drawRepeater(col, p) {
+    var recoil = (p && p.recoil > 0) ? Math.sin(p.recoil * 52) * 2.5 : 0;
+    var sway = Math.sin(state.time * 1.8 + col) * 0.04;
+    ctx.save();
+    ctx.rotate(sway);
+    ctx.translate(-recoil, 0);
+
+    var stem = ctx.createLinearGradient(-3, 0, 3, 0);
+    stem.addColorStop(0, '#22602a'); stem.addColorStop(0.5, '#3a8a3e'); stem.addColorStop(1, '#22602a');
+    ctx.fillStyle = stem;
+    ctx.fillRect(-3.5, 2, 7, 24);
+    ctx.fillStyle = '#2e7a32';
+    ctx.beginPath(); ctx.ellipse(-10, 10, 8.5, 4, -0.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(10, 14, 8.5, 4, 0.5, 0, Math.PI * 2); ctx.fill();
+
+    // 后炮管（上）
+    ctx.fillStyle = '#4e8a2e';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(6, -19, 13, 9, 3); else ctx.rect(6, -19, 13, 9);
+    ctx.fill();
+    ctx.fillStyle = '#2c5220';
+    ctx.beginPath(); ctx.ellipse(19, -14.5, 2.2, 3.6, 0, 0, Math.PI * 2); ctx.fill();
+
+    // 头
+    var g = ctx.createRadialGradient(-4, -13, 3, 0, -9, 14);
+    g.addColorStop(0, '#c2ec96'); g.addColorStop(0.55, '#6fbc55'); g.addColorStop(1, '#3a6e26');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, -9, 13.5, 0, Math.PI * 2); ctx.fill();
+
+    // 前炮管
+    var bg2 = ctx.createLinearGradient(0, -16, 0, -2);
+    bg2.addColorStop(0, '#8fd06a'); bg2.addColorStop(1, '#4e8a2e');
+    ctx.fillStyle = bg2;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(8, -14.5, 16, 11, 4); else ctx.rect(8, -14.5, 16, 11);
+    ctx.fill();
+    ctx.fillStyle = '#22461a';
+    ctx.beginPath(); ctx.ellipse(24, -9, 2.6, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+
+    // 眼睛（酷酷的）
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-4, -13, 3.4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3.5, -13, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath(); ctx.arc(-3, -12.5, 1.8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(4.2, -12.5, 1.6, 0, Math.PI * 2); ctx.fill();
+    // 眉毛
+    ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-7, -17.5); ctx.lineTo(-1.5, -16); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(1, -16); ctx.lineTo(6.5, -17.5); ctx.stroke();
+
+    // 头顶双叶
+    ctx.fillStyle = '#5aa84a';
+    ctx.beginPath(); ctx.ellipse(-3, -23.5, 6.5, 3, -0.7, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(3, -23.5, 6.5, 3, 0.7, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawWallnut(row, p) {
+    var hurt = p ? 1 - p.hp / p.maxHp : 0;
+    var wob = Math.sin(state.time * 3 + row * 1.7) * 0.035;
+    var sq = 1 + Math.sin(state.time * 3 + row) * 0.02;
+    ctx.save();
+    ctx.rotate(wob);
+    ctx.scale(1 / sq, sq);
+
+    // 身体
+    var g = ctx.createRadialGradient(-6, -12, 4, 0, 2, 34);
+    g.addColorStop(0, hurt > 0.6 ? '#c69765' : hurt > 0.3 ? '#dcae72' : '#e8c185');
+    g.addColorStop(0.6, hurt > 0.6 ? '#9c6b3f' : hurt > 0.3 ? '#b07d4a' : '#c98e55');
+    g.addColorStop(1, '#7a4f2a');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.ellipse(0, 0, 23, 29, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = 2.5; ctx.stroke();
+
+    // 纹理斑点
+    ctx.fillStyle = 'rgba(120,80,40,0.25)';
+    [[-8, 12, 2.5], [9, 8, 2], [5, 18, 1.6], [-12, -2, 1.8]].forEach(function (sp) {
+      ctx.beginPath(); ctx.arc(sp[0], sp[1], sp[2], 0, Math.PI * 2); ctx.fill();
+    });
+
+    // 高光
+    ctx.fillStyle = 'rgba(255,240,210,0.3)';
+    ctx.beginPath(); ctx.ellipse(-7, -13, 7, 10, -0.5, 0, Math.PI * 2); ctx.fill();
+
+    // 裂纹
+    ctx.strokeStyle = 'rgba(70,45,20,0.8)'; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+    if (hurt > 0.3) {
+      ctx.beginPath(); ctx.moveTo(-11, -14); ctx.lineTo(-5, -6); ctx.lineTo(-12, -3); ctx.stroke();
+    }
+    if (hurt > 0.6) {
+      ctx.beginPath(); ctx.moveTo(10, -10); ctx.lineTo(5, -2); ctx.lineTo(11, 4); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, 14); ctx.lineTo(4, 20); ctx.stroke();
+    }
+
+    // 表情
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-6.5, -5, 3.6, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(6.5, -5, 3.6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#2a1a08';
+    ctx.beginPath(); ctx.arc(-6, -4.5, 1.8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(7, -4.5, 1.8, 0, Math.PI * 2); ctx.fill();
+    // 眉（受伤程度越高越担忧）
+    ctx.strokeStyle = '#4a3014'; ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    if (hurt > 0.3) { ctx.moveTo(-10, -11); ctx.lineTo(-3.5, -9.5); ctx.moveTo(3.5, -9.5); ctx.lineTo(10, -11); }
+    else { ctx.moveTo(-10, -9.5); ctx.lineTo(-3.5, -10.5); ctx.moveTo(3.5, -10.5); ctx.lineTo(10, -9.5); }
+    ctx.stroke();
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    if (hurt > 0.6) { ctx.arc(0, 8, 4, Math.PI + 0.4, Math.PI * 2 - 0.4); }
+    else { ctx.arc(0, 5, 4.5, 0.3, Math.PI - 0.3); }
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawCherry(p) {
+    var f = p ? 1 - Math.max(0, p.fuse) / 1.2 : 1;
+    var pulse = 1 + Math.sin(state.time * 14) * 0.08 * f + f * 0.15;
+    var lift = Math.sin(state.time * 3) * 1.5;
+    ctx.save();
+    ctx.translate(0, lift);
+    ctx.scale(pulse, pulse);
+
+    function cherryBall(ox, oy, r) {
+      var g = ctx.createRadialGradient(ox - r * 0.3, oy - r * 0.3, r * 0.15, ox, oy, r);
+      g.addColorStop(0, '#ff9d80');
+      g.addColorStop(0.45, '#e53935');
+      g.addColorStop(1, '#8e1b12');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(ox, oy, r, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.beginPath(); ctx.ellipse(ox - r * 0.35, oy - r * 0.4, r * 0.28, r * 0.16, -0.6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(ox - r * 0.25, oy - r * 0.05, r * 0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(ox + r * 0.3, oy - r * 0.05, r * 0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#200';
+      ctx.beginPath(); ctx.arc(ox - r * 0.22, oy, r * 0.1, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(ox + r * 0.33, oy, r * 0.1, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#5b0d07'; ctx.lineWidth = r * 0.09;
+      ctx.beginPath(); ctx.moveTo(ox - r * 0.45, oy - r * 0.35); ctx.lineTo(ox - r * 0.1, oy - r * 0.25); ctx.stroke();
+    }
+
+    cherryBall(-8, -4, 13);
+    cherryBall(10, 2, 11);
+
+    // 茎 + 引信
+    ctx.strokeStyle = '#4a7a2a'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-8, -16); ctx.quadraticCurveTo(-4, -24, 2, -27); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(10, -9); ctx.quadraticCurveTo(8, -20, 2, -27); ctx.stroke();
+    ctx.strokeStyle = '#8a6a3a'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(2, -27); ctx.quadraticCurveTo(6, -33, 3, -37); ctx.stroke();
+
+    // 火花（越接近爆炸越大）
+    var sp = 3 + f * 5 + Math.random() * 2;
+    ctx.fillStyle = '#ffd23d';
+    ctx.beginPath(); ctx.arc(3, -38, sp * 0.55, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ff7043';
+    ctx.beginPath(); ctx.arc(3, -38, sp * 0.3, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawZombie(z) {
+    var y = cy(z.row);
+    var x = z.x;
+    var chilled = z.slow > 0;
+    var dying = z.dying > 0;
+    var dieT = dying ? Math.max(0, z.dying) / 0.9 : 1;
+    var bob = dying ? 0 : Math.sin(state.time * 6 + z.x * 0.05) * 2;
+    var step = dying ? 0 : Math.sin(state.time * 7 + z.x * 0.05) * 3.5;
+    var armSwing = dying ? 0 : Math.sin(state.time * 5 + z.x * 0.03) * 4;
+    var lean = dying ? (1 - dieT) * 1.45 : (z.eating ? Math.sin(state.time * 12) * 0.08 : -0.045);
+
+    // 影子（倒地时缩小变淡）
+    ctx.save();
+    ctx.globalAlpha = dying ? dieT * 0.8 : 1;
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.beginPath();
+    ctx.ellipse(x, y + 32, 17, 5.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // 以脚底为轴心旋转（倒地向后仰）；z.v 为体型随机缩放
+    ctx.save();
+    ctx.translate(x, y + 30);
+    ctx.scale(z.v || 1, z.v || 1);
+    ctx.rotate(lean);
+    ctx.translate(0, -30);
+    if (dying) ctx.globalAlpha = dieT;
+
+    var skin = z.hurtFlash > 0 ? '#ffc9c2' : (chilled ? '#a8c8e8' : '#a3bc8a');
+
+    // 腿（迈步 + 鞋子）
+    ctx.fillStyle = '#565b4e';
+    ctx.fillRect(-10 + step, 10, 7, 18);
+    ctx.fillRect(3 - step, 10, 7, 18);
+    ctx.fillStyle = '#3b3f35';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(-12 + step, 25, 10, 7, [0, 0, 3, 3]); else ctx.rect(-12 + step, 25, 10, 7);
+    ctx.fill();
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(1 - step, 25, 10, 7, [0, 0, 3, 3]); else ctx.rect(1 - step, 25, 10, 7);
+    ctx.fill();
+
+    // 悬挂的后手臂（随步伐摆动）
+    ctx.save();
+    ctx.translate(10, -8);
+    ctx.rotate(0.3 + armSwing * 0.022);
+    ctx.fillStyle = '#6a7657';
+    ctx.fillRect(0, 0, 6, 19);
+    ctx.fillStyle = skin;
+    ctx.beginPath(); ctx.ellipse(3, 21, 4, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    // 西装身体（渐变）
+    var jg = ctx.createLinearGradient(-13, -13, 13, 15);
+    jg.addColorStop(0, '#7a8863'); jg.addColorStop(0.6, '#5f6b52'); jg.addColorStop(1, '#49523f');
+    ctx.fillStyle = jg;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(-13, -13, 26, 28, 4); else ctx.rect(-13, -13, 26, 28);
+    ctx.fill();
+    // 破烂下摆（锯齿）
+    ctx.fillStyle = '#49523f';
+    ctx.beginPath();
+    ctx.moveTo(-13, 15); ctx.lineTo(-9, 20); ctx.lineTo(-5, 15);
+    ctx.lineTo(-1, 21); ctx.lineTo(3, 15); ctx.lineTo(7, 20);
+    ctx.lineTo(13, 15);
+    ctx.closePath(); ctx.fill();
+    // 衬衫 + 领带
+    ctx.fillStyle = '#d8d8c8';
+    ctx.beginPath(); ctx.moveTo(-4, -13); ctx.lineTo(4, -13); ctx.lineTo(3, 3); ctx.lineTo(-3, 3); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#a33333';
+    ctx.beginPath(); ctx.moveTo(-2, -12); ctx.lineTo(2, -12); ctx.lineTo(3, 1); ctx.lineTo(0, 7); ctx.lineTo(-3, 1); ctx.closePath(); ctx.fill();
+    // 翻领 + 纽扣
+    ctx.strokeStyle = '#3d4535'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(-4.5, -13); ctx.lineTo(-1, -6); ctx.moveTo(4.5, -13); ctx.lineTo(1, -6); ctx.stroke();
+    ctx.fillStyle = '#3d4535';
+    ctx.beginPath(); ctx.arc(-7.5, -1, 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-7.5, 5, 1.5, 0, Math.PI * 2); ctx.fill();
+
+    // 前伸手臂（进食时上下抓握）
+    var armY = (z.eating && !dying) ? Math.sin(state.time * 14) * 2 - 9 : -9;
+    ctx.fillStyle = '#6a7657';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(-25, armY, 16, 6.5, 3); else ctx.rect(-25, armY, 16, 6.5);
+    ctx.fill();
+    // 手 + 手指
+    ctx.fillStyle = skin;
+    ctx.beginPath(); ctx.ellipse(-27, armY + 3, 5, 5.5, 0.3, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#7d9666'; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-30, armY + 1); ctx.lineTo(-33, armY - 1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-30, armY + 5); ctx.lineTo(-33, armY + 6); ctx.stroke();
+
+    // 头（径向渐变 + 下巴 + 耳朵）
+    var hg = ctx.createRadialGradient(-5, -28, 3, -2, -24, 14);
+    hg.addColorStop(0, z.hurtFlash > 0 ? '#ffe0da' : (chilled ? '#c2dcee' : '#b8cd9e'));
+    hg.addColorStop(1, skin);
+    ctx.fillStyle = hg;
+    ctx.beginPath(); ctx.arc(-2, -24, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-4, -16, 6.5, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(9, -25, 3, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+    // 伤疤
+    ctx.strokeStyle = 'rgba(90,60,50,0.55)'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(2, -33); ctx.lineTo(5, -29); ctx.moveTo(4, -33); ctx.lineTo(2, -30); ctx.stroke();
+    // 凌乱头发
+    ctx.strokeStyle = '#4a4f43'; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-7, -34); ctx.quadraticCurveTo(-8, -38, -6, -39);
+    ctx.moveTo(-2, -35.5); ctx.quadraticCurveTo(-2, -39, 0, -40);
+    ctx.moveTo(3, -35); ctx.quadraticCurveTo(5, -38, 7, -37);
+    ctx.stroke();
+
+    // 眼睛（死亡变 X；活着有红血丝、瞳孔望向前方）
+    if (dying) {
+      ctx.strokeStyle = '#333'; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(-8.5, -28.5); ctx.lineTo(-4.5, -24.5); ctx.moveTo(-4.5, -28.5); ctx.lineTo(-8.5, -24.5); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-0.5, -28.5); ctx.lineTo(3.5, -24.5); ctx.moveTo(3.5, -28.5); ctx.lineTo(-0.5, -24.5); ctx.stroke();
+    } else {
+      ctx.fillStyle = '#ece9d8';
+      ctx.beginPath(); ctx.ellipse(-6.5, -26, 3.8, 4, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(1.5, -26, 3.4, 3.6, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(190,70,60,0.6)'; ctx.lineWidth = 0.7;
+      ctx.beginPath(); ctx.moveTo(-9, -27.5); ctx.lineTo(-7, -26.5); ctx.moveTo(-6, -29); ctx.lineTo(-5.5, -27); ctx.stroke();
+      ctx.fillStyle = '#2b2b2b';
+      ctx.beginPath(); ctx.arc(-7.5, -25.5, 1.7, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0.5, -25.5, 1.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.beginPath(); ctx.arc(-8, -26.3, 0.6, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#3f4438'; ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.moveTo(-10, -31.5); ctx.lineTo(-4, -30); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-1.5, -30.2); ctx.lineTo(4.5, -31.2); ctx.stroke();
+    }
+
+    // 嘴（进食露獠牙 / 平时流口水 / 死亡苦笑）
+    if (dying) {
+      ctx.strokeStyle = '#4a5540'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(-4, -16, 3.5, Math.PI + 0.4, Math.PI * 2 - 0.4); ctx.stroke();
+    } else if (z.eating) {
+      var open = 1.5 + Math.abs(Math.sin(state.time * 12)) * 3;
+      ctx.fillStyle = '#2e2620';
+      ctx.beginPath(); ctx.ellipse(-6, -15, 5, open, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#e8e0c8';
+      ctx.fillRect(-8.5, -16.5, 2.2, 1.8);
+      ctx.fillRect(-5.5, -16.5, 2.2, 1.8);
+    } else {
+      ctx.strokeStyle = '#4a5540'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(-4, -18, 4.5, 0.3, Math.PI - 0.3); ctx.stroke();
+      ctx.fillStyle = 'rgba(200,220,190,0.5)';
+      ctx.beginPath(); ctx.ellipse(-8, -14, 1.2, 2.2, 0, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // 路障帽（渐变 + 反光条）
+    if (z.type === 'cone') {
+      var cg = ctx.createLinearGradient(-12, -48, 8, -32);
+      cg.addColorStop(0, '#f5985c'); cg.addColorStop(0.5, '#e07b39'); cg.addColorStop(1, '#b35a1e');
+      ctx.fillStyle = cg;
+      ctx.beginPath(); ctx.moveTo(-2, -49); ctx.lineTo(-12, -32); ctx.lineTo(8, -32); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#8a4314'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#ffd9b0';
+      ctx.fillRect(-9.5, -41, 15, 4);
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.beginPath(); ctx.moveTo(-4, -47); ctx.lineTo(-2, -44); ctx.lineTo(-6, -44); ctx.closePath(); ctx.fill();
+    }
+
+    // 铁桶头盔（金属渐变 + 铆钉 + 受损歪斜凹陷）
+    if (z.type === 'bucket') {
+      var half = z.hp / z.maxHp < 0.5;
+      ctx.save();
+      if (half) ctx.rotate(0.2);
+      var bgd = ctx.createLinearGradient(-13, -50, 9, -33);
+      bgd.addColorStop(0, '#c8ccd0'); bgd.addColorStop(0.45, '#9aa0a6'); bgd.addColorStop(1, '#6e747a');
+      ctx.fillStyle = bgd;
+      ctx.beginPath();
+      ctx.moveTo(-12, -33); ctx.lineTo(-9, -50); ctx.lineTo(7, -50); ctx.lineTo(10, -33); ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#565c62'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#7d838a';
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-14, -35, 26, 5, 2); else ctx.rect(-14, -35, 26, 5);
+      ctx.fill();
+      ctx.fillStyle = '#d5d9dd';
+      for (var rv = 0; rv < 3; rv++) {
+        ctx.beginPath(); ctx.arc(-7 + rv * 7, -41, 1.3, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.beginPath(); ctx.moveTo(-8, -48); ctx.lineTo(-6, -48); ctx.lineTo(-7.5, -36); ctx.lineTo(-9.5, -36); ctx.closePath(); ctx.fill();
+      if (half) {
+        ctx.strokeStyle = '#4a5055'; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(-2, -47); ctx.lineTo(1, -43); ctx.lineTo(-2, -40); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // 冰冻标记
+    if (chilled && !dying) {
+      ctx.strokeStyle = 'rgba(190,235,255,0.9)'; ctx.lineWidth = 1.5;
+      ctx.save();
+      ctx.translate(9, -38);
+      ctx.rotate(state.time);
+      for (var ic = 0; ic < 3; ic++) {
+        ctx.rotate(Math.PI / 3);
+        ctx.beginPath(); ctx.moveTo(-4, 0); ctx.lineTo(4, 0); ctx.stroke();
+      }
+      ctx.restore();
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = '#aee4ff';
+      ctx.beginPath(); ctx.arc(-2, -24, 13, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = dying ? dieT : 1;
+    }
+
+    // 血条
+    if (z.hp < z.maxHp && !dying) {
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(-17, -54, 34, 6);
+      ctx.fillStyle = '#e5735f';
+      ctx.fillRect(-16, -53, 32 * Math.max(0, z.hp / z.maxHp), 4);
+    }
+
+    ctx.restore();
+  }
+
+  function drawSun(s) {
+    var pulse = 1 + Math.sin(s.wob * 2) * 0.08;
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.scale(pulse, pulse);
+    ctx.globalAlpha = s.life < 2 ? Math.max(0.2, s.life / 2) : 1;
+
+    // 光晕
+    ctx.fillStyle = 'rgba(255,213,74,0.25)';
+    ctx.beginPath(); ctx.arc(0, 0, 24, 0, Math.PI * 2); ctx.fill();
+
+    // 光芒
+    ctx.strokeStyle = 'rgba(255,226,122,0.75)';
+    ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    for (var i = 0; i < 10; i++) {
+      var ang = (Math.PI / 5) * i + s.wob;
+      var len = i % 2 === 0 ? 23 : 19;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(ang) * 14, Math.sin(ang) * 14);
+      ctx.lineTo(Math.cos(ang) * len, Math.sin(ang) * len);
+      ctx.stroke();
+    }
+
+    // 闪烁星光
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 1.3; ctx.lineCap = 'round';
+    for (var t2 = 0; t2 < 3; t2++) {
+      var ta = s.wob * 1.3 + t2 * 2.1;
+      var tx = Math.cos(ta) * 19, ty2 = Math.sin(ta) * 19;
+      var tl = 1.6 + Math.abs(Math.sin(s.wob * 4 + t2)) * 1.4;
+      ctx.globalAlpha = (s.life < 2 ? Math.max(0.2, s.life / 2) : 1) * (0.4 + Math.abs(Math.sin(s.wob * 4 + t2)) * 0.5);
+      ctx.beginPath();
+      ctx.moveTo(tx - tl, ty2); ctx.lineTo(tx + tl, ty2);
+      ctx.moveTo(tx, ty2 - tl); ctx.lineTo(tx, ty2 + tl);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = s.life < 2 ? Math.max(0.2, s.life / 2) : 1;
+
+    // 本体
+    var g = ctx.createRadialGradient(-4, -4, 2, 0, 0, 14);
+    g.addColorStop(0, '#fff7c0');
+    g.addColorStop(0.55, '#ffd23d');
+    g.addColorStop(1, '#e89a00');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawEffects() {
+    for (var pp = 0; pp < state.particles.length; pp++) {
+      var pt = state.particles[pp];
+      ctx.globalAlpha = Math.max(0, pt.life * 2.2);
+      ctx.fillStyle = pt.color;
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, pt.size * Math.min(1, pt.life * 2), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    for (var ri = 0; ri < state.rings.length; ri++) {
+      var rg = state.rings[ri];
+      ctx.globalAlpha = Math.max(0, rg.life * 2);
+      ctx.strokeStyle = rg.color;
+      ctx.lineWidth = 4 * rg.life + 1;
+      ctx.beginPath(); ctx.arc(rg.x, rg.y, rg.r, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawAmbient() {
+    for (var i = 0; i < state.ambient.length; i++) {
+      var s = state.ambient[i];
+      var tw = 0.22 + Math.abs(Math.sin(s.ph * 1.7)) * 0.33;
+      ctx.globalAlpha = tw * 0.4;
+      ctx.fillStyle = '#fff3b0';
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.size * 2.6, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = tw;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawVignette() {
+    var vg = ctx.createRadialGradient(
+      VW / 2, VH / 2, VH * 0.42,
+      VW / 2, VH / 2, VH * 0.95
+    );
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.26)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, VW, VH);
+  }
+
+  function drawBanner() {
+    if (state.waveBanner <= 0) return;
+    var a = Math.min(1, state.waveBanner / 0.5);
+    ctx.globalAlpha = a;
+    var bgr = ctx.createLinearGradient(0, 0, VW, 0);
+    bgr.addColorStop(0, 'rgba(20,10,0,0)');
+    bgr.addColorStop(0.18, 'rgba(20,10,0,0.68)');
+    bgr.addColorStop(0.82, 'rgba(20,10,0,0.68)');
+    bgr.addColorStop(1, 'rgba(20,10,0,0)');
+    ctx.fillStyle = bgr;
+    ctx.fillRect(0, VH / 2 - 36, VW, 72);
+    ctx.fillStyle = '#ffe27a';
+    ctx.font = 'bold 34px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 8;
+    ctx.fillText('第 ' + state.wave + ' 波', VW / 2, VH / 2 + 6);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#d8ecd0';
+    ctx.font = '13px "Microsoft YaHei", sans-serif';
+    ctx.fillText('一大波僵尸正在接近！', VW / 2, VH / 2 + 26);
+    ctx.globalAlpha = 1;
+  }
+
+  // 鼠标跟踪（种植预览）
+  canvas.addEventListener('mousemove', function (e) {
+    var rect = canvas.getBoundingClientRect();
+    window.__pvzMouse = {
+      x: (e.clientX - rect.left) * (VW / rect.width),
+      y: (e.clientY - rect.top) * (VH / rect.height)
+    };
+  });
+  canvas.addEventListener('mouseleave', function () { window.__pvzMouse = null; });
+
+  // ---------- 主循环 ----------
+  function loop(ts) {
+    var dt = Math.min(0.05, (ts - lastTime) / 1000 || 0);
+    lastTime = ts;
+    update(dt);
+    draw();
+    if (!state.over) rafId = requestAnimationFrame(loop);
+  }
+
+  function start() {
+    newGame();
+    selected = null;
+    document.querySelectorAll('.seed').forEach(function (s) { s.classList.remove('selected'); });
+    startOverlay.style.display = 'none';
+    endOverlay.style.display = 'none';
+    lastTime = performance.now();
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  document.getElementById('startBtn').addEventListener('click', start);
+  document.getElementById('retryBtn').addEventListener('click', start);
+
+  newGame();
+  draw();
+})();
+</script>
+</body>
+</html>
